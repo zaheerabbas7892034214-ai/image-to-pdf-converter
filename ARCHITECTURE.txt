@@ -1,0 +1,127 @@
+╔══════════════════════════════════════════════════════════════════╗
+║           IMAGE TO PDF CONVERTER - ARCHITECTURE                  ║
+║                    Package: com.zaheer.imagetopdf                ║
+╚══════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────┐
+│                        UI LAYER (Compose)                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌──────────────┐         ┌──────────────────────────┐         │
+│  │  MainActivity │───────▶│  Navigation Compose      │         │
+│  │  (Single)     │         │                          │         │
+│  └──────────────┘         │  • Home Screen           │         │
+│                            │  • Preview Screen        │         │
+│                            └──────────────────────────┘         │
+│                                                                  │
+│  ┌───────────────────────────────────────────────────────────┐ │
+│  │                     HomeScreen.kt                          │ │
+│  │  • Image Picker (GetMultipleContents)                     │ │
+│  │  • Image List with Reorder Controls                       │ │
+│  │  • Pro Upgrade Dialog                                     │ │
+│  │  • Free Tier Limit (5 images)                             │ │
+│  └───────────────────────────────────────────────────────────┘ │
+│                                                                  │
+│  ┌───────────────────────────────────────────────────────────┐ │
+│  │                   PreviewScreen.kt                         │ │
+│  │  • PDF Generation Status                                  │ │
+│  │  • Save to Downloads Button                               │ │
+│  │  • Share PDF Button                                       │ │
+│  │  • Watermark Warning (Free)                               │ │
+│  └───────────────────────────────────────────────────────────┘ │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+                                  │
+                                  │ StateFlow
+                                  ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                       VIEWMODEL LAYER                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌───────────────────────────────────────────────────────────┐ │
+│  │            ImageToPdfViewModel.kt (MVVM)                  │ │
+│  │                                                            │ │
+│  │  State:                    Operations:                    │ │
+│  │  • selectedImages          • addImages()                  │ │
+│  │  • isProcessing            • removeImage()                │ │
+│  │  • generatedPdfFile        • moveImage()                  │ │
+│  │  • message                 • convertToPdf()               │ │
+│  │  • isPro (from Billing)    • savePdf()                    │ │
+│  │                            • sharePdf()                    │ │
+│  │                            • restorePurchases()            │ │
+│  └───────────────────────────────────────────────────────────┘ │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+                    │                          │
+                    │                          │
+        ┌───────────▼──────────┐    ┌──────────▼──────────┐
+        │                      │    │                      │
+┌───────▼─────────────────┐    │    │   ┌─────────────────▼──────┐
+│   DOMAIN LAYER          │    │    │   │    BILLING LAYER       │
+├─────────────────────────┤    │    │   ├────────────────────────┤
+│                         │    │    │   │                        │
+│  PdfGenerator.kt        │    │    │   │  BillingManager.kt     │
+│  • generatePdf()        │    │    │   │  • Google Play 7.x     │
+│  • PdfDocument API      │    │    │   │  • pdf_pro_unlock      │
+│  • Image Scaling        │    │    │   │  • Purchase Flow       │
+│  • Watermark Rendering  │    │    │   │  • Restore Purchases   │
+│  • A4 Page Size         │    │    │   │  • State Persistence   │
+│                         │    │    │   │                        │
+└─────────────────────────┘    │    │   └────────────────────────┘
+                               │    │
+                               ▼    ▼
+                    ┌──────────────────────────┐
+                    │     UTILITIES LAYER      │
+                    ├──────────────────────────┤
+                    │                          │
+                    │  FileUtils.kt            │
+                    │  • MediaStore (Save)     │
+                    │  • FileProvider (Share)  │
+                    │  • Temp File Management  │
+                    │                          │
+                    │  ImageUtils.kt           │
+                    │  • Bitmap Loading        │
+                    │  • Image Scaling         │
+                    │  • Memory Optimization   │
+                    │                          │
+                    └──────────────────────────┘
+                               │
+                               ▼
+                    ┌──────────────────────────┐
+                    │    ANDROID PLATFORM      │
+                    ├──────────────────────────┤
+                    │  • MediaStore API        │
+                    │  • FileProvider          │
+                    │  • PdfDocument           │
+                    │  • BitmapFactory         │
+                    │  • ContentResolver       │
+                    │  • Google Play Billing   │
+                    └──────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════
+
+FEATURES MATRIX:
+
+FREE VERSION (Default)         │  PRO VERSION (In-App Purchase)
+───────────────────────────────┼──────────────────────────────────
+✓ Select up to 5 images        │  ✓ Unlimited image selection
+✓ Reorder images               │  ✓ Reorder images
+✓ Convert to PDF               │  ✓ Convert to PDF
+✓ Save to Downloads            │  ✓ Save to Downloads
+✓ Share PDF                    │  ✓ Share PDF
+✗ Watermark: "FREE VERSION"    │  ✓ No Watermark
+                               │  ✓ Restore Purchases
+
+═══════════════════════════════════════════════════════════════════
+
+TECH STACK:
+• Language: Kotlin
+• UI: Jetpack Compose + Material 3
+• Architecture: MVVM + StateFlow
+• Navigation: Navigation Compose
+• Billing: Google Play Billing 7.x
+• Min SDK: 24 (Android 7.0)
+• Target SDK: 34 (Android 14)
+• Build: Gradle 8.2 (Groovy)
+
+═══════════════════════════════════════════════════════════════════
